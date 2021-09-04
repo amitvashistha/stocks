@@ -1,0 +1,52 @@
+<table>
+    <thead>
+        <tr>
+            <th>Stock</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Avg</th>
+            <th>Invested</th>
+            <th>Total</th>
+            <th>% Allocation</th>
+            <th>Return</th>
+            <th>% return</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let stock of stockList; let i=index">
+            <td>
+                <select [(ngModel)]="stock.Company" (change)="onCompanySelect(i)">
+                    <option *ngFor="let company of companies">{{company}}</option>
+                </select>
+            </td>
+            <td>
+                <div>{{stock.Price}}</div>
+            </td>
+            <td>
+                <input type="text" [(ngModel)]="stock.Quantity" (change)="onQtyChange(i)">
+            </td>
+            <td>
+                <input type="text" [(ngModel)]="stock.Average" (change)="onAverageChange(i)">
+            </td>
+            <td>
+                <div>{{stock.Invested}}</div>
+            </td>
+            <td>
+                <div>{{stock.Total}}</div>
+            </td>
+            <td>
+                <div>{{stock.Allocation}}</div>
+            </td>
+            <td>
+                <div>{{stock.Return}}</div>
+            </td>
+            <td>
+                <div>{{stock.PctReturn}}</div>
+            </td>
+            <td>
+                <button (click)="removeStock(i)">x</button>
+            </td>
+        </tr>
+    </tbody>
+    <button (click)="addStock()">+</button>
+</table>
