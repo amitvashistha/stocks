@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NseService } from './nse.service';
+import { catchError, map } from "rxjs/operators";
 
 @Component({
   selector: 'app-stock-list',
@@ -13,6 +14,11 @@ export class StockListComponent implements OnInit {
   baseUrl = "https://www1.nseindia.com/live_market/dynaContent/live_watch/get_quote/ajaxGetQuoteJSON.jsp?series=EQ&symbol=";
   GET_QUOTE_URL = "https://www1.nseindia.com/live_market/dynaContent/live_watch/get_quote/GetQuote.jsp?symbol=";
   temp: any;
+
+  private extractData(res: Response) {
+    let body = res;
+    return body || {};
+  }
 
   constructor(private nseService: NseService) { }
 
@@ -33,15 +39,17 @@ export class StockListComponent implements OnInit {
     let company = this.stockList[index].Company;
     // const httpOptions = {
     //   headers: new HttpHeaders({ //Referer: this.GET_QUOTE_URL + encodeURIComponent(company),
-    //     'X-Requested-With': 'XMLHttpRequest', 'Access-Control-Allow-Origin':'*' })
+    //     "Content-Type": "text/html;charset=ISO-8859-1" })
     // };
     // this.http.get(this.baseUrl + encodeURIComponent(company), httpOptions).pipe();
-    this.nseService.GetStockQuote(company).subscribe((response) => {
-      console.log(response);
-    }, err => {
-      console.log(err.message);
-    });
-    console.log(this.temp);
+    var temp1 = this.nseService.GetStockQuote(company);//.subscribe((data) => {
+    //   console.log(data);
+    // }, err => {
+    //   console.log(err.message);
+    // });
+    console.log(temp1);
+    temp1.pipe(map(this.extractData)).subscribe(data => console.log(data));
+    
   }
 
   onQtyChange(index: number) {
