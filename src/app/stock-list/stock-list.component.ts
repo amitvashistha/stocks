@@ -1,7 +1,5 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NseService } from './nse.service';
-import { catchError, map } from "rxjs/operators";
 
 @Component({
   selector: 'app-stock-list',
@@ -11,14 +9,6 @@ import { catchError, map } from "rxjs/operators";
 export class StockListComponent implements OnInit {
   stockList: Stock[] = [];
   companies: string[] = ["TCS", "c2", "c3"];
-  baseUrl = "https://www1.nseindia.com/live_market/dynaContent/live_watch/get_quote/ajaxGetQuoteJSON.jsp?series=EQ&symbol=";
-  GET_QUOTE_URL = "https://www1.nseindia.com/live_market/dynaContent/live_watch/get_quote/GetQuote.jsp?symbol=";
-  temp: any;
-
-  private extractData(res: Response) {
-    let body = res;
-    return body || {};
-  }
 
   constructor(private nseService: NseService) { }
 
@@ -37,19 +27,11 @@ export class StockListComponent implements OnInit {
   onCompanySelect(index: number) {
     console.log(this.stockList);
     let company = this.stockList[index].Company;
-    // const httpOptions = {
-    //   headers: new HttpHeaders({ //Referer: this.GET_QUOTE_URL + encodeURIComponent(company),
-    //     "Content-Type": "text/html;charset=ISO-8859-1" })
-    // };
-    // this.http.get(this.baseUrl + encodeURIComponent(company), httpOptions).pipe();
-    var temp1 = this.nseService.GetStockQuote(company);//.subscribe((data) => {
-    //   console.log(data);
-    // }, err => {
-    //   console.log(err.message);
-    // });
-    console.log(temp1);
-    temp1.pipe(map(this.extractData)).subscribe(data => console.log(data));
-    
+    this.nseService.GetStockQuote(company).subscribe(res => {
+      let response = JSON.parse(JSON.stringify(res));
+      console.log(response.data[0].closePrice);
+      this.stockList[index].Price = + (response.data[0].closePrice+"").replace(',','');
+    });
   }
 
   onQtyChange(index: number) {
@@ -63,10 +45,24 @@ export class StockListComponent implements OnInit {
   }
 
   calculate(index: number) {
-    this.stockList[index].Invested = this.stockList[index].Quantity*this.stockList[index].Average;
-    this.stockList[index].Total = this.stockList[index].Quantity*this.stockList[index].Price;
+    let qty = this.stockList[index].Quantity;
+    let avg = this.stockList[index].Average;
+    let prc = this.stockList[index].Price;
+
+    this.stockList[index].Invested = +(qty*avg).toFixed(2);
+    this.stockList[index].Total = +(qty*prc).toFixed(2);
+
+    let inv = this.stockList[index].Invested;
+    let tot = this.stockList[index].Total;
     let totalInvested = this.calculateTotalInvestment();
 
+    this.stockList[index].Allocation = +(tot/totalInvested*100).toFixed(2);
+    this.stockList[index].Return = +(qty*(prc - avg)).toFixed(2);
+
+    var rtrn = this.stockList[index].Return;
+
+    this.stockList[index].PctReturn = +(rtrn/inv*100).toFixed(2);
+    console.log(JSON.stringify(this.stockList));
   }
 
   calculateTotalInvestment(): number {
@@ -77,6 +73,11 @@ export class StockListComponent implements OnInit {
       }
     });
     return total;
+  }
+
+  saveList() {
+    this.nseService.GetStockList().subscribe(data => this.stockList = data);
+    // this.nseService.PostStockList(this.stockList);
   }
 }
 

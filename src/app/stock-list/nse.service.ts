@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Stock } from './stock-list.component';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,13 @@ export class NseService {
   constructor(private http: HttpClient) { }
 
   GetStockQuote(symbol: string) {
+    return this.http.get(this.baseUrl+symbol);
+  }
 
-    return this.http.get(this.url1);
+  GetStockList() {
+    return this.http.get<Stock[]>("./assets/stock-list.json");
+  }
+
+  PostStockList(stockList: Stock[]) {
   }
 }
