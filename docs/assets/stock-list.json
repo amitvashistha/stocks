@@ -1,0 +1,13 @@
+[
+    {
+        "Company": "TCS",
+        "Price": 3842.05,
+        "Quantity": "3",
+        "Average": "3800",
+        "Invested": 11400,
+        "Total": 11526.15,
+        "Allocation": 100,
+        "Return": 126.15,
+        "PctReturn": 1.11
+    }
+]
